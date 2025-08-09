@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>Welcome, {{ request.user.username }}!</h2>
+
+  <hr />
+  <h4>Available Quizzes</h4>
+  <ul class="list-group mb-4">
+    {% for quiz in quizzes %}
+    <li
+      class="list-group-item d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <strong>{{ quiz.title }}</strong><br />
+        <small>{{ quiz.description }}</small>
+      </div>
+      <a href="{% url 'quiz:start' quiz.id %}" class="btn btn-primary btn-sm"
+        >Start</a
+      >
+    </li>
+    {% empty %}
+    <li class="list-group-item">No quizzes available</li>
+    {% endfor %}
+  </ul>
+
+  <h4>Your Attempts</h4>
+  <ul class="list-group">
+    {% for attempt in attempts %}
+    <li class="list-group-item">
+      {{ attempt.quiz_title }} - Score: {{ attempt.score }}%
+    </li>
+    {% empty %}
+    <li class="list-group-item">No attempts yet</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
