@@ -29,7 +29,7 @@
   <ul class="list-group">
     {% for attempt in attempts %}
     <li class="list-group-item">
-      {{ attempt.quiz_title }} - Score: {{ attempt.score }}%
+      {{ attempt.quiz.title }} - Score: {{ attempt.score }}%
     </li>
     {% empty %}
     <li class="list-group-item">No attempts yet</li>
