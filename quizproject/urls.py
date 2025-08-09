@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.shortcuts import redirect
 
 urlpatterns = [
+    path('nested_admin/', include('nested_admin.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('quiz/', include('quiz.urls')),

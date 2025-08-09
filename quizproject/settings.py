@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'accounts',
     'dashboard',
     'quiz',
+    'nested_admin',
 ]
 
 MIDDLEWARE = [
