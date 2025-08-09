@@ -1,78 +1,135 @@
 {% extends "base.html" %} {% block content %}
-<div class="container mt-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Welcome, {{ request.user.username }}!</h2>
+<div class="container my-5">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+    <h2 class="mb-2 mb-md-0">
+      👋 Welcome, <strong>{{ request.user.username }}</strong>!
+    </h2>
     <div class="d-flex gap-2">
       {% if request.user.is_staff %}
-      <a href="/admin/quiz/quiz/" class="btn btn-success btn-sm">
+      <a href="/admin/quiz/quiz/" class="btn btn-success">
         ⚙️ Manage Quizzes
       </a>
       {% endif %}
-      <a href="{% url 'logout' %}" class="btn btn-danger btn-sm"> Logout </a>
+      <a href="{% url 'logout' %}" class="btn btn-outline-danger">🚪 Logout</a>
     </div>
   </div>
 
-  <hr />
-  <h4>Available Quizzes</h4>
-  <ul class="list-group mb-4">
-    {% for quiz in quizzes %}
-    <li
-      class="list-group-item d-flex justify-content-between align-items-center"
-    >
-      <div>
-        <strong>{{ quiz.title }}</strong><br />
-        <small>{{ quiz.description }}</small>
-      </div>
-      <a href="{% url 'quiz:start' quiz.id %}" class="btn btn-primary btn-sm"
-        >Start</a
-      >
-    </li>
-    {% empty %}
-    <li class="list-group-item">No quizzes available</li>
-    {% endfor %}
-  </ul>
+  <!-- Available Quizzes -->
+  <div class="mb-3">
+    <h4 class="mb-3">📚 Available Quizzes</h4>
+    <div class="row g-2">
+      {% for quiz in quizzes %}
+      <div class="col-md-3 col-sm-6">
+        <div
+          class="card shadow-sm h-100"
+          style="border-radius: 8px; overflow: hidden"
+        >
+          <div
+            class="card-img-top bg-secondary"
+            style="
+              width: 100%;
+              height: 150px;
+              overflow: hidden;
+              position: relative;
+            "
+          >
+            <img
+              src="https://picsum.photos/300/150?random={{ quiz.id }}"
+              alt="{{ quiz.title }}"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                opacity: 0;
+                transition: opacity 0.3s;
+              "
+              onload="this.style.opacity=1"
+            />
+          </div>
 
-  <h4>Your Attempts</h4>
-  <ul class="list-group">
-    {% for attempt in attempts %}
-    <li class="list-group-item">
-      {{ attempt.quiz.title }} - Score: {{ attempt.score }}%
-    </li>
-    {% empty %}
-    <li class="list-group-item">No attempts yet</li>
-    {% endfor %}
-  </ul>
-  {% if report %}
-  <h2>📊 Simple Report (Admin Only)</h2>
-  <table
-    border="1"
-    cellpadding="6"
-    cellspacing="0"
-    style="width: 100%; border-collapse: collapse"
-  >
-    <thead>
-      <tr style="background: #f5f5f5">
-        <th>User</th>
-        <th>Quiz</th>
-        <th>Score</th>
-        <th>Date Taken</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for attempt in report %}
-      <tr>
-        <td>{{ attempt.user.username }}</td>
-        <td>{{ attempt.quiz.title }}</td>
-        <td>{{ attempt.score }}%</td>
-        <td>{{ attempt.date_taken|date:"M d, Y H:i" }}</td>
-      </tr>
+          <div class="card-body p-2">
+            <h6 class="card-title mb-1">{{ quiz.title }}</h6>
+            <p class="card-text text-muted small mb-2" style="min-height: 30px">
+              {{ quiz.description|truncatechars:40 }}
+            </p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-warning text-dark"
+                >{{ quiz.questions.count }} Soal</span
+              >
+              <a
+                href="{% url 'quiz:start' quiz.id %}"
+                class="btn btn-primary btn-sm"
+              >
+                Start ➡️
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
       {% empty %}
-      <tr>
-        <td colspan="4" style="text-align: center">No attempts yet</td>
-      </tr>
+      <p class="text-muted">No quizzes available</p>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">📜 History</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+      {% for attempt in attempts %}
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center flex-wrap"
+      >
+        <div>
+          <strong>{{ attempt.quiz.title }}</strong><br />
+          <small class="text-muted"
+            >🗓 {{ attempt.date_taken|date:"M d, Y H:i" }}</small
+          >
+        </div>
+        <span class="badge bg-primary rounded-pill">{{ attempt.score }}%</span>
+      </li>
+      {% empty %}
+      <li class="list-group-item text-muted">No history yet</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Simple Report for Admin -->
+  {% if report %}
+  <div class="card shadow-sm">
+    <div class="card-header bg-warning">
+      <h5 class="mb-0">📊 Simple Report</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>User</th>
+            <th>Quiz</th>
+            <th>Score</th>
+            <th>Date Taken</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attempt in report %}
+          <tr>
+            <td>{{ attempt.user.username }}</td>
+            <td>{{ attempt.quiz.title }}</td>
+            <td><span class="badge bg-success">{{ attempt.score }}%</span></td>
+            <td>{{ attempt.date_taken|date:"M d, Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center text-muted">No attempts yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
   {% endif %}
 </div>
 {% endblock %}
