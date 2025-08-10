@@ -1,10 +1,41 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-5">
-  <h2>Quiz Result</h2>
-  <p><strong>Quiz:</strong> {{ attempt.quiz.title }}</p>
-  <p><strong>Score:</strong> {{ attempt.score }}%</p>
-  <a href="{% url 'dashboard:index' %}" class="btn btn-primary"
-    >Back to Dashboard</a
-  >
+  <div class="card shadow-lg border-0 rounded-4 text-center">
+    <div class="card-body p-5">
+      <h2 class="mb-4 text-success">🏆 Quiz Result</h2>
+
+      <div class="mb-3">
+        <p class="mb-1 text-muted">Quiz Title</p>
+        <h4 class="fw-bold">{{ attempt.quiz.title }}</h4>
+      </div>
+
+      <div class="mb-4">
+        <p class="mb-1 text-muted">Your Score</p>
+        <h3
+          class="fw-bold {% if attempt.score >= 70 %}text-success{% else %}text-danger{% endif %}"
+        >
+          {{ attempt.score }}%
+        </h3>
+        {% if attempt.score >= 70 %}
+        <span
+          class="badge bg-success-subtle text-success rounded-pill px-3 py-2"
+        >
+          🎉 Great job!
+        </span>
+        {% else %}
+        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2">
+          💪 Keep practicing!
+        </span>
+        {% endif %}
+      </div>
+
+      <a
+        href="{% url 'dashboard:index' %}"
+        class="btn btn-primary btn-md rounded-pill shadow-sm px-4"
+      >
+        ⬅ Back to Dashboard
+      </a>
+    </div>
+  </div>
 </div>
 {% endblock %}
