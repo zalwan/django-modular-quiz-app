@@ -15,6 +15,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            messages.success(request, "Login successful")
             return redirect('dashboard:index')
         else:
             messages.error(request, "Invalid username or password")
