@@ -1,25 +1,165 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-5">
-  <h2>{{ quiz.title }}</h2>
-  <p>{{ quiz.description }}</p>
-  <form method="post">
-    {% csrf_token %} {% for question in questions %}
-    <div class="mb-3">
-      <strong>{{ forloop.counter }}. {{ question.text }}</strong>
-      {% for choice in question.choices.all %}
-      <div class="form-check">
-        <input
-          type="radio"
-          class="form-check-input"
-          name="{{ question.id }}"
-          value="{{ choice.id }}"
-        />
-        <label class="form-check-label">{{ choice.text }}</label>
-      </div>
-      {% endfor %}
+  <div class="card shadow-lg border-0 rounded-4">
+    <div class="card-body p-4">
+      <h2 class="mb-2 text-primary">{{ quiz.title }}</h2>
+      <p class="text-muted mb-4">{{ quiz.description }}</p>
+
+      <form method="post" id="quizForm" novalidate>
+        {% csrf_token %} {% for question in questions %}
+        <div class="mb-4 p-3 border rounded-3 bg-light">
+          <strong class="d-block mb-2">
+            {{ forloop.counter }}. {{ question.text }}
+          </strong>
+
+          {% for choice in question.choices.all %}
+          <div class="form-check mb-2">
+            <input
+              type="radio"
+              class="form-check-input"
+              name="{{ question.id }}"
+              id="choice-{{ question.id }}-{{ choice.id }}"
+              value="{{ choice.id }}"
+            />
+            <label
+              class="form-check-label"
+              for="choice-{{ question.id }}-{{ choice.id }}"
+            >
+              {{ choice.text }}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="">
+          <!-- Trigger Modal Check -->
+          <button
+            type="button"
+            id="openModalBtn"
+            class="btn btn-success btn-md rounded-pill shadow-sm"
+          >
+            🚀 Submit Answers
+          </button>
+        </div>
+      </form>
     </div>
-    {% endfor %}
-    <button class="btn btn-success" type="submit">Submit</button>
-  </form>
+  </div>
 </div>
+
+<!-- Warning Modal -->
+<div
+  class="modal fade"
+  id="warningModal"
+  tabindex="-1"
+  aria-labelledby="warningModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-warning rounded-4 shadow-lg">
+      <div class="modal-header bg-warning bg-opacity-25">
+        <h5 class="modal-title text-warning" id="warningModalLabel">
+          Incomplete Answers
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Please make sure you have answered all questions before submitting.
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-warning rounded-pill"
+          data-bs-dismiss="modal"
+        >
+          OK, I Understand
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div
+  class="modal fade"
+  id="confirmSubmitModal"
+  tabindex="-1"
+  aria-labelledby="confirmSubmitModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmSubmitModalLabel">
+          Confirm Submission
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to submit your answers? You will not be able to
+        change them afterwards.
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary rounded-pill"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-success rounded-pill"
+          id="confirmSubmitBtn"
+        >
+          Yes, Submit!
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const openModalBtn = document.getElementById("openModalBtn");
+  const confirmSubmitBtn = document.getElementById("confirmSubmitBtn");
+
+  openModalBtn.addEventListener("click", function () {
+    const questions = document.querySelectorAll(".bg-light");
+    let allAnswered = true;
+
+    questions.forEach((q) => {
+      const radios = q.querySelectorAll("input[type='radio']");
+      const checked = Array.from(radios).some((r) => r.checked);
+      if (!checked) {
+        allAnswered = false;
+      }
+    });
+
+    if (!allAnswered) {
+      var warningModal = new bootstrap.Modal(
+        document.getElementById("warningModal")
+      );
+      warningModal.show();
+    } else {
+      var confirmModal = new bootstrap.Modal(
+        document.getElementById("confirmSubmitModal")
+      );
+      confirmModal.show();
+    }
+  });
+
+  confirmSubmitBtn.addEventListener("click", function () {
+    document.getElementById("quizForm").submit();
+  });
+</script>
 {% endblock %}
