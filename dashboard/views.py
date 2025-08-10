@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from django.contrib.auth.decorators import login_required
@@ -28,3 +28,19 @@ def index(request):
             "report": report,
         },
     )
+
+
+@login_required
+def delete_attempt(request, attempt_id):
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id, user=request.user)
+    if request.method == "POST":
+        attempt.delete()
+        return redirect('dashboard:index')
+    return redirect('dashboard:index')
+
+
+@login_required
+def delete_all_history(request):
+    if request.method == "POST":
+        QuizAttempt.objects.filter(user=request.user).delete()
+    return redirect('dashboard:index')
